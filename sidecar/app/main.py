@@ -24,8 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
 )
 
-COGNEE_BASE_URL = os.environ.get("COGNEE_BASE_URL", "https://tenant-d077aaf8-1a30-4bbb-b053-aeafaaf8f38b.aws.cognee.ai")
-COGNEE_API_KEY = os.environ.get("COGNEE_API_KEY", "b14a2e3b8cb219306f5d350552a6c815ee555284c6706040b1d2c319cf5217d6")
+COGNEE_BASE_URL = os.environ.get("COGNEE_BASE_URL", "https://tenant-d077aaf8-1a30-4bbb-b053-aeafaaf8f38b.aws.cognee.ai").strip()
+COGNEE_API_KEY = os.environ.get("COGNEE_API_KEY", "b14a2e3b8cb219306f5d350552a6c815ee555284c6706040b1d2c319cf5217d6").strip()
 
 def slugify(text: str) -> str:
     # Convert pattern name (e.g., "Dynamic Programming") to a safe dataset name (e.g., "dynamic_programming")
