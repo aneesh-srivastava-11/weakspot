@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #090a0f;
+    color: #f1f5f9;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+/* Custom CSS Scrollbar and Glow Utilities */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d0e12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #272a37;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f445b;
+}
+
+/* Custom styles for terminal glow & background scanline effects */
+.terminal-glow {
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+.glow-amber {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+}
+
+/* Shimmer animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.8));
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes lineFlow {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-line-flow {
+  stroke-dasharray: 8 4;
+  animation: lineFlow 1.5s infinite linear;
+}

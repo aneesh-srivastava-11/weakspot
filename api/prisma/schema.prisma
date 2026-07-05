@@ -1,0 +1,52 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+model User {
+  id           String           @id @default(uuid())
+  email        String           @unique
+  passwordHash String           @map("password_hash")
+  tier         String           @default("free") // "free" | "pro"
+  createdAt    DateTime         @default(now()) @map("created_at")
+  
+  usage        Usage[]
+  attempts     ProblemAttempt[]
+
+  @@map("users")
+}
+
+model Usage {
+  id       String   @id @default(uuid())
+  userId   String   @map("user_id")
+  date     DateTime @db.Date
+  logCount Int      @default(0) @map("log_count")
+  
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("usage")
+}
+
+model ProblemAttempt {
+  id                      String   @id @default(uuid())
+  userId                  String   @map("user_id")
+  cogneeNodeRef           String?  @map("cognee_node_ref")
+  problemTitle            String   @map("problem_title")
+  pattern                 String   // e.g. "sliding-window", "two-pointer", "dp"
+  difficulty              String   // "Easy" | "Medium" | "Hard"
+  result                  String   // "Solved" | "Solved with Hints" | "Failed"
+  mistakeSummary          String?  @map("mistake_summary")
+  consecutiveCorrectCount Int      @default(0) @map("consecutive_correct_count")
+  status                  String   @default("active_weak_spot") // "active_weak_spot" | "mastered_forgotten"
+  createdAt               DateTime @default(now()) @map("created_at")
+  
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("problem_attempts")
+}

@@ -1,0 +1,6 @@
+{
+  "name": "WeakSpot",
+  "description": "A personal coding-practice companion that tracks patterns in your programming mistakes, alerts you before you start a new problem, and clears the warning once mastered.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

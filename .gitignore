@@ -1,0 +1,30 @@
+# Environment files
+.env
+.env*.local
+.env.local
+
+# Dependency directories
+**/node_modules/
+**/dist/
+**/.next/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.venv/
+**/venv/
+
+# Database files & caches
+**/pgdata/
+**/.cognee/
+**/.kuzu/
+**/*.db
+**/*.db-journal
+
+# Logs & temp files
+**/*.log
+**/npm-debug.log*
+.DS_Store
+
+# IDE configs
+.vscode/
+.idea/
