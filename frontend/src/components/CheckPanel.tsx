@@ -95,6 +95,78 @@ export default function CheckPanel({
     setHasChecked(false);
   }, [selectedPattern]);
 
+  const renderBriefing = (text: string) => {
+    // Replace bold
+    let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Replace code backticks
+    html = html.replace(/`(.*?)`/g, '<code class="bg-[#1b1d28] px-1 py-0.5 rounded font-mono text-[10px] text-amber-400">$1</code>');
+    
+    // Replace bullet points starting with - or *
+    const lines = html.split('\n');
+    let inList = false;
+    let inTable = false;
+    const parsedLines = lines.map(line => {
+      const trimmed = line.trim();
+      
+      // Handle list items
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        const content = trimmed.substring(2);
+        let listPrefix = '';
+        if (!inList) {
+          inList = true;
+          listPrefix = '<ul class="list-disc list-inside space-y-1 my-1.5">';
+        }
+        return `${listPrefix}<li>${content}</li>`;
+      } 
+      
+      // Close list if we are no longer in a list line
+      let prefix = '';
+      if (inList && !trimmed.startsWith('- ') && !trimmed.startsWith('* ')) {
+        inList = false;
+        prefix = '</ul>';
+      }
+
+      // Handle table rows
+      if (trimmed.startsWith('|')) {
+        const cells = trimmed.split('|').map(c => c.trim()).filter((c, idx, arr) => idx > 0 && idx < arr.length - 1);
+        if (cells.every(c => c.match(/^---+$/))) {
+          return ''; // Skip separator lines
+        }
+        
+        const isHeader = line.toLowerCase().includes('mistake') || line.toLowerCase().includes('how to');
+        const cellTag = isHeader ? 'th' : 'td';
+        const cols = cells.map(cell => `<${cellTag} class="border border-[#222533] p-2 text-left ${isHeader ? 'font-bold bg-[#11131c] text-white' : ''}">${cell}</${cellTag}>`).join('');
+        
+        let tablePrefix = '';
+        if (!inTable) {
+          inTable = true;
+          tablePrefix = '<div class="overflow-x-auto w-full"><table class="w-full border-collapse border border-[#1e2230] text-[10px] my-2.5"><tbody>';
+        }
+        
+        return `${prefix}${tablePrefix}<tr class="odd:bg-[#0c0d12] even:bg-[#11131c]">${cols}</tr>`;
+      }
+
+      // Close table if we are no longer in a table line
+      let tableSuffix = '';
+      if (inTable && !trimmed.startsWith('|')) {
+        inTable = false;
+        tableSuffix = '</tbody></table></div>';
+      }
+
+      return `${prefix}${tableSuffix}${line}`;
+    });
+    
+    let finalHtml = parsedLines.filter(l => l !== '').join('\n');
+    if (inList) {
+      finalHtml += '</ul>';
+    }
+    if (inTable) {
+      finalHtml += '</tbody></table></div>';
+    }
+    
+    return <div dangerouslySetInnerHTML={{ __html: finalHtml }} />;
+  };
+
   return (
     <div className="rounded-xl border border-[#1b1e2c] bg-[#0c0d12] p-6 h-full flex flex-col justify-between" id="check-panel-container">
       <div>
@@ -199,8 +271,8 @@ export default function CheckPanel({
                   </div>
 
                   {/* Gemini formatted warning briefing */}
-                  <div className="text-[11px] font-sans leading-relaxed text-[#c9d1d9] bg-[#0c0d12] px-3 py-2 rounded border border-[#1e2230] font-mono whitespace-pre-line leading-relaxed">
-                    {aiBriefing}
+                  <div className="text-[11px] font-sans leading-relaxed text-[#c9d1d9] bg-[#0c0d12] px-3 py-2.5 rounded border border-[#1e2230] whitespace-pre-line leading-relaxed">
+                    {renderBriefing(aiBriefing)}
                   </div>
 
                   {/* List of past mistakes */}
