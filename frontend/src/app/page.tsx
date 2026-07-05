@@ -48,6 +48,7 @@ export default function Dashboard() {
 
     if (!user) {
       setIsLoggedIn(false);
+      router.push('/login');
       return;
     }
 
