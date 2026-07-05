@@ -11,8 +11,10 @@ import { getUserFromToken, getGeminiKey } from '../lib/auth';
 import { api } from '../lib/api';
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
+  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   
   // Core data states loaded from API
