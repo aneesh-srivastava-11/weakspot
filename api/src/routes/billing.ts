@@ -34,9 +34,12 @@ router.post('/create-order', async (req: AuthenticatedRequest, res: Response) =>
       currency: order.currency,
       keyId: KEY_ID
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating Razorpay order:', error);
-    return res.status(500).json({ error: 'Failed to initialize payment order' });
+    const msg = error.description || error.message || 'Failed to initialize payment order';
+    return res.status(400).json({ 
+      error: `Razorpay Integration Error: ${msg}. Verify that you configured valid RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your Vercel project environment variables, or use the simulated upgrade/downgrade toggle on the 'Usage & Billing' page.` 
+    });
   }
 });
 
