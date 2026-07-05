@@ -46,15 +46,9 @@ export default function LoginSignup({ initialEmail = '' }: LoginSignupProps) {
       // Store jwt
       setToken(res.token);
 
-      // Redirect user to dashboard
-      router.push('/');
-      
-      // Force page refresh to update all client contexts
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.location.reload();
-        }
-      }, 100);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     } catch (err: any) {
       setError(err.message || 'Authentication failed. Please verify credentials.');
     } finally {

@@ -22,10 +22,8 @@ export default function Header({
   const handleLogout = () => {
     clearToken();
     clearGeminiKey();
-    // Redirect to login and reload window to clean states
-    router.push('/login');
     if (typeof window !== 'undefined') {
-      window.location.reload();
+      window.location.href = '/login';
     }
   };
 

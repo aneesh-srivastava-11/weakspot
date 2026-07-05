@@ -55,12 +55,9 @@ export default function LandingPricing({
             });
 
             if (verificationResult.success) {
-              router.push('/');
-              setTimeout(() => {
-                if (typeof window !== 'undefined') {
-                  window.location.reload();
-                }
-              }, 200);
+              if (typeof window !== 'undefined') {
+                window.location.href = '/';
+              }
             }
           } catch (err: any) {
             setError(err.message || 'Signature verification failed.');

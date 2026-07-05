@@ -29,7 +29,7 @@ export default function BillingUsage({
       clearGeminiKey();
 
       if (typeof window !== 'undefined') {
-        window.location.reload();
+        window.location.href = '/billing';
       }
     } catch (err) {
       console.error(err);
