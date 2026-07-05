@@ -13,12 +13,23 @@ router.use(verifyJWT);
 // 5. Validate Key endpoint (Runs before tierCheck as it does not require a pre-configured key)
 router.post('/validate-key', async (req: AuthenticatedRequest, res: Response) => {
   const { apiKey } = req.body;
+  const userId = req.user?.userId;
   if (!apiKey) {
     return res.status(400).json({ error: 'API key is required' });
   }
 
   try {
     const sidecarResult = await callSidecar('/validate-key', 'POST', { api_key: apiKey }, apiKey);
+    
+    // Automatically persist validated key to PostgreSQL server-side
+    if (sidecarResult.valid && userId) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { geminiKey: apiKey }
+      });
+      console.log(`Persisted validated Gemini key server-side for user: ${userId}`);
+    }
+    
     return res.json(sidecarResult);
   } catch (error: any) {
     console.error('Error validating API key:', error);
@@ -53,7 +64,7 @@ async function callSidecar(endpoint: string, method: string, body: any, geminiKe
 router.post('/log-attempt', async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.userId;
   const userTier = req.user?.tier;
-  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.headers['x-gemini-key'] as string);
+  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.user?.geminiKey || (req.headers['x-gemini-key'] as string));
 
   if (!userId || !geminiKey) {
     return res.status(400).json({ error: 'Missing authorization or Gemini API key context' });
@@ -183,7 +194,7 @@ router.post('/log-attempt', async (req: AuthenticatedRequest, res: Response) => 
 router.post('/check-before-solving', async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.userId;
   const userTier = req.user?.tier;
-  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.headers['x-gemini-key'] as string);
+  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.user?.geminiKey || (req.headers['x-gemini-key'] as string));
 
   if (!userId || !geminiKey) {
     return res.status(400).json({ error: 'Missing authorization or Gemini API key context' });
@@ -226,7 +237,7 @@ router.post('/check-before-solving', async (req: AuthenticatedRequest, res: Resp
 router.post('/improve', async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.userId;
   const userTier = req.user?.tier;
-  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.headers['x-gemini-key'] as string);
+  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.user?.geminiKey || (req.headers['x-gemini-key'] as string));
 
   if (!userId || !geminiKey) {
     return res.status(400).json({ error: 'Missing authorization or Gemini API key context' });
@@ -255,7 +266,7 @@ router.post('/improve', async (req: AuthenticatedRequest, res: Response) => {
 router.post('/forget', async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.userId;
   const userTier = req.user?.tier;
-  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.headers['x-gemini-key'] as string);
+  const geminiKey = userTier === 'pro' ? process.env.GEMINI_SERVER_KEY : (req.user?.geminiKey || (req.headers['x-gemini-key'] as string));
 
   if (!userId || !geminiKey) {
     return res.status(400).json({ error: 'Missing authorization or Gemini API key context' });

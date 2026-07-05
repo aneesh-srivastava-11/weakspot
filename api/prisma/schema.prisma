@@ -13,6 +13,7 @@ model User {
   email        String           @unique
   passwordHash String           @map("password_hash")
   tier         String           @default("free") // "free" | "pro"
+  geminiKey    String?          @map("gemini_key")
   createdAt    DateTime         @default(now()) @map("created_at")
   
   usage        Usage[]

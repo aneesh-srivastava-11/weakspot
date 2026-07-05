@@ -4,15 +4,29 @@ import React, { useState, useEffect } from 'react';
 import LandingPricing from '../../components/LandingPricing';
 import ClientWrapper from '../../components/ClientWrapper';
 import { UserState } from '../../types';
-import { getUserFromToken, getGeminiKey } from '../../lib/auth';
+import { getUserFromToken, getGeminiKey, setGeminiKey } from '../../lib/auth';
 import { api } from '../../lib/api';
 
 export default function PricingPage() {
-  const [userState, setUserState] = useState<UserState>({
-    email: null,
-    tier: 'Free',
-    geminiApiKey: null,
-    logsCountToday: 0
+  const [userState, setUserState] = useState<UserState>(() => {
+    if (typeof window !== 'undefined') {
+      const user = getUserFromToken();
+      const apiKey = getGeminiKey();
+      if (user) {
+        return {
+          email: user.email,
+          tier: user.tier === 'pro' ? 'Pro' : 'Free',
+          geminiApiKey: apiKey,
+          logsCountToday: 0
+        };
+      }
+    }
+    return {
+      email: null,
+      tier: 'Free',
+      geminiApiKey: null,
+      logsCountToday: 0
+    };
   });
 
   useEffect(() => {
@@ -21,10 +35,13 @@ export default function PricingPage() {
 
     if (user) {
       api.getGraph().then((data) => {
+        if (data.userState.geminiApiKey) {
+          setGeminiKey(data.userState.geminiApiKey);
+        }
         setUserState({
           email: user.email,
           tier: data.userState.tier,
-          geminiApiKey: apiKey,
+          geminiApiKey: data.userState.geminiApiKey || apiKey,
           logsCountToday: data.userState.logsCountToday
         });
       }).catch((err) => {

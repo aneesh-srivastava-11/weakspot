@@ -68,6 +68,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       userState: {
         email: user.email,
         tier: user.tier === 'pro' ? 'Pro' : 'Free',
+        geminiApiKey: user.geminiKey,
         logsCountToday: usage?.logCount || 0
       }
     });

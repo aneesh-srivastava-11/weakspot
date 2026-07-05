@@ -7,7 +7,7 @@ import CheckPanel from '../components/CheckPanel';
 import WeakSpotsMap from '../components/WeakSpotsMap';
 import ActivityLogTerminal from '../components/ActivityLogTerminal';
 import { PracticeLog, TerminalLog, UserState, PatternType } from '../types';
-import { getUserFromToken, getGeminiKey } from '../lib/auth';
+import { getUserFromToken, getGeminiKey, setGeminiKey } from '../lib/auth';
 import { api } from '../lib/api';
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
@@ -25,12 +25,26 @@ export default function Dashboard() {
   // Terminal logs state
   const [terminalLogs, setTerminalLogs] = useState<TerminalLog[]>([]);
   
-  // User state
-  const [userState, setUserState] = useState<UserState>({
-    email: null,
-    tier: 'Free',
-    geminiApiKey: null,
-    logsCountToday: 0
+  // User state (Synchronously initialized from local token to prevent navbar flicker)
+  const [userState, setUserState] = useState<UserState>(() => {
+    if (typeof window !== 'undefined') {
+      const user = getUserFromToken();
+      const apiKey = getGeminiKey();
+      if (user) {
+        return {
+          email: user.email,
+          tier: user.tier === 'pro' ? 'Pro' : 'Free',
+          geminiApiKey: apiKey,
+          logsCountToday: 0
+        };
+      }
+    }
+    return {
+      email: null,
+      tier: 'Free',
+      geminiApiKey: null,
+      logsCountToday: 0
+    };
   });
 
   // Telemetry logger helper
@@ -61,10 +75,16 @@ export default function Dashboard() {
       .then((data) => {
         setLogs(data.attempts);
         setMasteredPatterns(data.masteredPatterns);
+        
+        // Sync server-side API Key to local storage
+        if (data.userState.geminiApiKey) {
+          setGeminiKey(data.userState.geminiApiKey);
+        }
+        
         setUserState({
           email: user.email,
           tier: data.userState.tier,
-          geminiApiKey: apiKey,
+          geminiApiKey: data.userState.geminiApiKey || apiKey,
           logsCountToday: data.userState.logsCountToday
         });
 

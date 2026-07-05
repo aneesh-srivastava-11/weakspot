@@ -56,7 +56,7 @@ export default function LandingPricing({
 
             if (verificationResult.success) {
               if (typeof window !== 'undefined') {
-                window.location.href = '/';
+                window.location.href = '/billing';
               }
             }
           } catch (err: any) {

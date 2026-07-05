@@ -24,12 +24,13 @@ export async function tierCheck(req: AuthenticatedRequest, res: Response, next: 
     req.user = {
       userId: user.id,
       email: user.email,
-      tier: user.tier
+      tier: user.tier,
+      geminiKey: user.geminiKey
     };
 
     if (user.tier === 'free') {
-      // 1. Validate X-Gemini-Key is provided for BYOK
-      const geminiKey = req.headers['x-gemini-key'];
+      // 1. Validate Gemini Key is resolved from DB or provided in header
+      const geminiKey = user.geminiKey || req.headers['x-gemini-key'];
       if (!geminiKey || geminiKey === 'undefined' || geminiKey === 'null') {
         return res.status(400).json({
           error: 'Gemini API Key is required for the Free Tier. Please configure your key in Onboarding or Upgrade to Pro.'
