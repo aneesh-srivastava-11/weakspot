@@ -27,6 +27,29 @@ export default function CheckPanel({
   const [isSearching, setIsSearching] = useState(false);
   const [warningFound, setWarningFound] = useState(false);
   const [aiBriefing, setAiBriefing] = useState('');
+  const [isImproving, setIsImproving] = useState(false);
+
+  const handleImprove = async () => {
+    setIsImproving(true);
+    if (onTelemetryLog) {
+      onTelemetryLog('improve', `improve(): Triggering Cognee graph memory optimization sequence for "${selectedPattern}"...`);
+    }
+    
+    try {
+      const res = await api.improve(selectedPattern);
+      
+      if (onTelemetryLog) {
+        onTelemetryLog('improve', `improve(): Cognee Cloud returned success: ${res.message || 'Optimized successfully'}.`);
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (onTelemetryLog) {
+        onTelemetryLog('system', `system(): Improve failed: ${err.message}`);
+      }
+    } finally {
+      setIsImproving(false);
+    }
+  };
 
   // Filter logs for selected pattern that count as weak spots
   const patternMistakes = logs.filter(
@@ -296,19 +319,31 @@ export default function CheckPanel({
                   </div>
 
                   {/* Mastered CTA inside check panel */}
-                  <div className="border-t border-[#1b1e2c] pt-3.5 flex items-center justify-between gap-2">
-                    <span className="font-mono text-[9px] text-[#5b647f]">
-                      Flag active inside memory
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleForgetMastery}
-                      className="px-2.5 py-1 rounded bg-amber-500/10 hover:bg-emerald-500/20 text-amber-500 hover:text-emerald-400 border border-amber-500/25 hover:border-emerald-500/30 font-sans text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
-                      id="btn-prove-mastery"
-                    >
-                      <span>Prove Mastered (Clear Flags)</span>
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
+                  <div className="border-t border-[#1b1e2c] pt-3.5 flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-[9px] font-mono text-[#5b647f]">
+                      <span>Cognitive Actions</span>
+                      <span>active_weak_spot</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleImprove}
+                        disabled={isImproving}
+                        className="flex-1 py-1 px-2.5 rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/25 hover:border-blue-500/30 font-sans text-[10px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                        id="btn-improve-memory"
+                      >
+                        {isImproving ? 'Optimizing...' : 'Optimize Connections'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleForgetMastery}
+                        className="py-1 px-2.5 rounded bg-amber-500/10 hover:bg-emerald-500/20 text-amber-500 hover:text-emerald-400 border border-amber-500/25 hover:border-emerald-500/30 font-sans text-[10px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        id="btn-prove-mastery"
+                      >
+                        <span>Prove Mastered</span>
+                        <ArrowRight className="h-3 w-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
