@@ -13,8 +13,8 @@ interface LoginSignupProps {
 export default function LoginSignup({ initialEmail = '' }: LoginSignupProps) {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState(initialEmail || 'developer@weakspot.ai');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState(initialEmail || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);

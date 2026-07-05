@@ -19,7 +19,10 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     headers['X-Gemini-Key'] = geminiKey;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const baseUrl = API_BASE_URL.replace(/\/+$/, '');
+  const cleanEndpoint = '/' + endpoint.replace(/^\/+/, '');
+
+  const response = await fetch(`${baseUrl}${cleanEndpoint}`, {
     ...options,
     headers
   });
